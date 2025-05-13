@@ -1,0 +1,183 @@
+---
+title: "Targeted Marketing, Case Study"
+subtitle: "Course CSE 450"
+author: "Spencer Palmer"
+format:
+  html:
+    self-contained: true
+    page-layout: full
+    title-block-banner: true
+    toc: true
+    toc-depth: 3
+    toc-location: body
+    number-sections: false
+    html-math-method: katex
+    code-fold: true
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-copy: hover
+    code-tools:
+        source: false
+        toggle: true
+        caption: See code
+execute: 
+  warning: false
+    
+---
+
+
+## Project Notes
+
+- 
+- 
+-  
+
+---
+
+# Stakeholder Questions
+
+## Question 1
+
+__Should we use supervised or unsupervised learning?__
+
+- I believe using an Unsupervised learning algorithm will provide us with the best possible results to locate customers most likely to subscribe to a term deposit. 
+- The reason I support an unsupervised learning algorithm for this project is because they are designed to use unlabed data, meaning the data is not paired with preset groupings and expectations. This way we can uncover hidden patterns, structures, or relationships within the data and avoid potential false groupings due to preset pairing. We are trying to find the relationships between the customers that can tell us if they are more likely to subscribe to a term deposit. Using a supervised learning algorithm means we already know the type of people who are likely to subscribe.
+
+
+## Question 2
+
+__How should we split the data for training/testing?__
+
+- I believe we should use a k-Fold Cross Validation method for training/testing. 
+
+
+## Question 3
+
+__Are there secondary insights regarding timing or customer types?__
+
+- 
+- 
+- 
+
+
+## Question 4
+
+__Are there GDPR considerations for using this data?__  
+
+- 
+- 
+- 
+
+---
+
+## Key Visual Insights  
+
+
+```{python}
+import pandas as pd
+import numpy as np
+from lets_plot import *
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+LetsPlot.setup_html(isolated_frame=True)
+# Learn morea about Code Cells: https://quarto.org/docs/reference/cells/cells-jupyter.html
+
+bank_data = pd.read_csv("https://raw.githubusercontent.com/byui-cse/cse450-course/master/data/bank.csv")
+# Include and execute your code here
+
+# bank_data.head()
+
+successful_campaign = bank_data[(bank_data["y"] == "yes")]
+successful_campaign.head()
+
+
+
+# Data Preprocessing
+# Include: marital, education, housing, loan, contact, month, day_of_week, pdays, previous, emp.var.rate, cons.price.idx, cons.conf.idx, euribor3m, nr.employed
+# Exclude: default, previous, poutcome
+
+# (
+#   ggplot(data=bank_data, mapping=aes(x="y")) 
+#   + geom_bar() 
+#   + labs(
+#     title="Number of Subscriptions During Campaign",
+#     x="Number of Subscriptions",
+#   )
+# )
+```
+
+
+#### Successful Campaign
+```{python}
+
+successful_campaign["nr.employed"].value_counts()
+
+```
+
+
+#### All Data
+```{python}
+
+bank_data["nr.employed"].value_counts()
+
+```
+
+## Model Overview 
+
+- Brief description of model(s) used 
+
+- Why we chose this model 
+
+- General performance 
+
+```{python}
+# Model
+# X = bank_data[['marital', 'education', 'housing', 'loan', 'contact', 'month', 'day_of_week', 'pdays', 'previous', 'emp.var.rate', 'cons.price.idx', 'cons.conf.idx', 'euribor3m', 'nr.employed']]
+X = bank_data[['pdays', 'previous', 'emp.var.rate', 'cons.price.idx', 'cons.conf.idx', 'euribor3m', 'nr.employed']]
+y = bank_data[['y']]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+clf = KNeighborsClassifier(n_neighbors=3)
+clf.fit(X_train, y_train)
+
+# Predictions
+X_pred = clf.predict(X_test)
+X_pred
+
+```
+
+```{python}
+# Accuracy Score
+sklearn_score = accuracy_score(y_test, X_pred)
+sklearn_score
+
+```
+
+```{python}
+# Confusion Matrix
+sklearn_cm = confusion_matrix(y_test, X_pred)
+sklearn_cm
+
+```
+
+```{python}
+# Heatmap
+cm_df = pd.DataFrame(sklearn_cm, index=["Yes", "No"], columns=["Yes", "No"])
+# sns.heatmap(cm_df, annot=True, cmap="Blues")
+
+(
+  ggplot(data=cm_df) 
+  + geom_bar() 
+  + scale_fill_gradient(low="white", high="blue") 
+)
+
+
+```
+
+## Reccomendations 
+
+- Actionable insights for the bank (which customer types to target)
+
+---
